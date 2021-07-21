@@ -1,22 +1,32 @@
 from rest_framework import status, generics
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, CreateAPIView
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.permissions import IsCharityOwner, IsBenefactor
-from charities.models import Task
+from charities.models import Task, Benefactor, Charity
 from charities.serializers import (
     TaskSerializer, CharitySerializer, BenefactorSerializer
 )
 
 
-class BenefactorRegistration(APIView):
-    pass
+class BenefactorRegistration(CreateAPIView):
+    queryset = Benefactor.objects.all()
+    serializer_class = BenefactorSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
 
-class CharityRegistration(APIView):
-    pass
+class CharityRegistration(CreateAPIView):
+    queryset = Charity.objects.all()
+    serializer_class = CharitySerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def perform_create(self, serializer):
+        return serializer.save(user=self.request.user)
 
 
 class Tasks(generics.ListCreateAPIView):
